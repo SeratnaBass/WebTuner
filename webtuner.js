@@ -31,56 +31,6 @@ class DFT {
             v[off + i] /= s;
         }
     }
-    
-    /**
-     * 高速フーリエ変換、単純な再帰呼び出しを使用した実装
-     * @param n 変換するデータの要素数、実装の特性上2のべき乗を指定する必要がある
-     * @param v 変換するデータ、実数、虚数の順で配置された複素数の配列
-     * @param inv 逆変換を行う場合は true を設定する
-     * @param off 変換を行う配列vの配列インデックス
-     */
-    static simpleFFT(n, v, inv = false, off = 0) {
-        // 前処理
-        let rad = (inv ? Math.PI : -Math.PI) / n;
-        for (let j = 0; j < n; j += 2) {
-            let a = off + j;
-            let ar = v[a + 0], ai = v[a + 1];
-            let b = off + n + j;
-            let br = v[b + 0], bi = v[b + 1];
-
-            // 偶数列 (a + b)
-            v[a + 0] = ar + br;
-            v[a + 1] = ai + bi;
-
-            // 奇数列 (a - b) * w
-            let xr = ar - br, xi = ai - bi;
-            let r = rad * j;
-            let wr = Math.cos(r), wi = Math.sin(r); // 回転因子 e^(-2 * π * i * j / N)
-            v[b + 0] = xr * wr - xi * wi;
-            v[b + 1] = xr * wi + xi * wr;
-        }
-
-        // 再帰的にDFTをかける
-        let nd = n << 1;
-        if (n > 2) {
-            DFT.simpleFFT(n >>> 1, v, inv, off); // 偶数列
-            DFT.simpleFFT(n >>> 1, v, inv, off + n); // 奇数列
-
-            // 並べ替え
-            for (let m = nd, mh = n, mq; 1 < (mq = mh >>> 1); m = mh, mh = mq) {
-                for (let i = mq; i < nd - mh; i += m) {
-                    for (let j = i, k = i + mq; j < i + mq; j += 2, k += 2) {
-                        DFT.swap(v, off + j, off + k);
-                    }
-                }
-            }
-        }
-
-        // 逆変換用のスケール
-        if (inv) {
-            DFT.scaleElements(nd, v, 2, off);
-        }
-    }
 
     /**
      * 高速フーリエ変換
