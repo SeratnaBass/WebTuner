@@ -1,3 +1,4 @@
+// フーリエ変換
 class DFT {
 
     static swap(v, a, b) {
@@ -20,7 +21,6 @@ class DFT {
                 DFT.swap(v, i, j);
             }
 
-            // ビットオーダを反転した変数としてインクリメント
             for (let k = nh; (j ^= k) < k; k >>= 1) {
             }
         }
@@ -32,12 +32,6 @@ class DFT {
         }
     }
 
-    /**
-     * 高速フーリエ変換
-     * @param n 変換するデータの要素数、実装の特性上2のべき乗を指定する必要がある
-     * @param v 変換するデータ、実数、虚数の順で配置された複素数の配列
-     * @param inv 逆変換を行う場合は true を設定する
-     */
     static fft(n, v, inv = false) {
         let rad = (inv ? 2.0 : -2.0) * Math.PI / n;
         let nd = n << 1;
@@ -45,18 +39,16 @@ class DFT {
         for (let m = nd, mh; 2 <= (mh = m >>> 1); m = mh) {
             for (let i = 0; i < mh; i += 2) {
                 let rd = rad * (i >> 1);
-                let cs = Math.cos(rd), sn = Math.sin(rd); // 回転因子
+                let cs = Math.cos(rd), sn = Math.sin(rd);
 
                 for (let j = i; j < nd; j += m) {
                     let k = j + mh;
                     let ar = v[j + 0], ai = v[j + 1];
                     let br = v[k + 0], bi = v[k + 1];
 
-                    // 前半 (a + b)
                     v[j + 0] = ar + br;
                     v[j + 1] = ai + bi;
 
-                    // 後半 (a - b) * w
                     let xr = ar - br;
                     let xi = ai - bi;
                     v[k + 0] = xr * cs - xi * sn;
@@ -66,10 +58,8 @@ class DFT {
             rad *= 2;
         }
 
-        // 要素の入れ替え
         DFT.swapElements(n, v);
 
-        // 逆変換用のスケール
         if (inv) {
             DFT.scaleElements(nd, v, n);
         }
@@ -189,12 +179,12 @@ navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
         }
 
         // NSDFをグラフに描画
-        const barWidth = canvas.width / NSDF.length;
+        const barWidth = cw / NSDF.length;
         drawContext.fillStyle = 'rgba(0, 0, 0, 1)';
-        drawContext.fillRect(0, 0, canvas.width, ch);
+        drawContext.fillRect(0, 0, cw, ch);
 
         drawContext.fillStyle = 'blue';
-        drawContext.fillRect(0, ch/2, canvas.width, 2);
+        drawContext.fillRect(0, ch/2, cw, 2);
         for(var num = 50; num < NSDF.length; num += 50){
             drawContext.fillRect(num * barWidth, 0, 0.7, ch);
         }
@@ -202,8 +192,8 @@ navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
         for (num = 0; num < NSDF.length; ++num) {
             const value = NSDF[num];
             const percent = ( value + 1 ) / 2;
-            const height = canvas.height * percent;
-            const offset = canvas.height - height;
+            const height = ch * percent;
+            const offset = ch - height;
   
             drawContext.fillStyle = 'lime';
             drawContext.fillRect(num * barWidth, offset, barWidth, 2);
