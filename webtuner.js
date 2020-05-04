@@ -198,8 +198,6 @@ navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
             drawContext.fillStyle = 'lime';
             drawContext.fillRect(num * barWidth, offset, barWidth, 2);
         }
-        drawContext.fillStyle = 'red';
-        drawContext.fillRect(T, ch / 2, barWidth * 5, 5);
   
         // 継続的にピッチ検出
         requestAnimationFrame(tuning);
