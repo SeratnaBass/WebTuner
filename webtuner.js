@@ -133,7 +133,7 @@ navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
         let autocorrelationReal = [];
         for(var num = 0; num < autocorrelation.length; num += 2) autocorrelationReal.push(autocorrelation[num]);
         
-        // 正規化
+        // 自己相関関数を正規化したNSDFの配列を作る
         let NSDF = new Float32Array(autocorrelationReal.length);
         for(num = 0; num < autocorrelationReal.length; num++){
             if( autocorrelationReal[0] ){
@@ -183,7 +183,9 @@ navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
         // 倍音の検出を防ぐため、表示するピッチは検出したピッチのうち最小のものを採用(※1)
         if(T != 0){
             freq = Math.min(freq, 44100 / T);
-            console.log(freq);
+            //console.log(freq);
+            const freqArea = document.getElementById('freqArea');
+            freqArea.innerHTML = freq;
         }
 
         // NSDFをグラフに描画
