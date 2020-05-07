@@ -1,4 +1,4 @@
-// フーリエ変換
+// 高速フーリエ変換
 class DFT {
 
     static swap(v, a, b) {
@@ -66,6 +66,8 @@ class DFT {
     }
 }
 
+const start = document.querySelector('#start');
+const stop = document.querySelector('#stop');
 const canvas = document.querySelector('#canvas');
 const drawContext = canvas.getContext('2d');
 const cw = canvas.width;
@@ -174,20 +176,24 @@ navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
         if(T != 0){
             freq = Math.min(freq, 44100 / T);
             //console.log(freq);
+            freq = Math.floor(freq * 1000) / 1000; // 小数点以下第3位までで切り捨て
             const freqArea = document.getElementById('freqArea');
-            freqArea.innerHTML = freq;
+            freqArea.innerHTML = "Pitch is ... ";
+            freqArea.innerHTML += freq;
+            freqArea.innerHTML += "[Hz]";
         }
 
-        // NSDFをグラフに描画
+        // NSDFをグラフに描画していく
         const barWidth = cw / NSDF.length;
         drawContext.fillStyle = 'rgba(0, 0, 0, 1)';
         drawContext.fillRect(0, 0, cw, ch);
 
+        // 横軸の描画
         drawContext.fillStyle = 'blue';
         drawContext.fillRect(0, ch/2, cw, 2);
-        for(var num = 50; num < NSDF.length; num += 50){
-            drawContext.fillRect(num * barWidth, 0, 0.7, ch);
-        }
+        // for(var num = 50; num < NSDF.length; num += 50){
+        //     drawContext.fillRect(num * barWidth, 0, 0.7, ch);
+        // }
 
         for (num = 0; num < NSDF.length; ++num) {
             const value = NSDF[num];
@@ -199,11 +205,22 @@ navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
             drawContext.fillRect(num * barWidth, offset, barWidth, 2);
         }
   
-        // 継続的にピッチ検出
-        requestAnimationFrame(tuning);
+        // 継続的にピッチ検出と描画を行う
+        // stopボタンが押されるまで処理を継続する
+        if(stop.disabled == false){
+            requestAnimationFrame(tuning);
+        }
     }
 
-    tuning();
+    start.onclick = function() {
+        start.disabled = true;
+        stop.disabled = false;
+        tuning();
+    }
+    stop.onclick = function() {
+        start.disabled = false;
+        stop.disabled = true;
+    }
 
     // (※1)のコードのため、定期的に周波数をリセットしないと継続的にピッチ検出機能を使えない
     setInterval(function() {
